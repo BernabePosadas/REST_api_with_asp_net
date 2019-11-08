@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
+using TodoApi.Interfaces;
 
 namespace TodoApi.Controllers
 {
@@ -14,100 +15,91 @@ namespace TodoApi.Controllers
     public class POSController : ControllerBase
     {
         private readonly POSContext _context;
-
-        public POSController(POSContext context)
+        private readonly IPOSItemValidator _validator;
+        private readonly UserProfile _user;
+        public POSController(IPOSItemValidator validator, POSContext context)
         {
-            _context = context;
+            this._context = context;
+            this._validator = validator;
+            this._user = this.CreateUser();
         }
 
-        // GET: api/POSAPI
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<POSItems>>> GetItems()
+        [HttpGet("Inventory/getItem")]
+        public async Task<ActionResult<IEnumerable<POSItems>>> GetItems(long? id)
         {
-            return await _context.Items.ToListAsync();
-        }
-
-        // GET: api/POS/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<POSItems>> GetPOSItems(long id)
-        {
-            var pOSItems = await _context.Items.FindAsync(id);
-
-            if (pOSItems == null)
-            {
-                return NotFound();
+            if(_user == null || !_user.rights.ViewRights){
+                return Unauthorized();
             }
+            if (!id.HasValue)
+            {
+                return await _context.Items.ToListAsync();
+            }
+            else
+            {
+                var pOSItems = await _context.Items.FindAsync(id);
 
-            return pOSItems;
-        }
-        [HttpPut]
-        public async Task<IActionResult> PutPOSItems(POSItems pOSItems)
-        {
-            if (!POSItemsExists(pOSItems.Id))
-            {
-                BadRequestObjectResult obj = new BadRequestObjectResult("Aww Snap, Entry does not exist. Did you mean to use POST method?");
-                return BadRequest(obj);
-            }
-            _context.Entry(pOSItems).State = EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                    throw;
-            }
-
-            return NoContent();
-        }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPOSItemsID(long id, POSItems pOSItems)
-        {
-            if (id != pOSItems.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(pOSItems).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!POSItemsExists(id))
+                if (pOSItems == null)
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+                List<POSItems> item = new List<POSItems>();
+                item.Add(pOSItems);
+                IEnumerable<POSItems> list = item;
+                return item;
+            }
+        }
+        [HttpPut("Inventory/UpdateItem")]
+        public async Task<IActionResult> PutPOSItems(POSItems pOSItems)
+        {
+            if(_user == null || !_user.rights.ModifyRights){
+                return Unauthorized();
+            }
+            if (!_validator.ValidateItem(pOSItems))
+            {   
+                return BadRequest(new BadRequestObjectResult(_validator));
+            }
+            if (!POSItemsExists(pOSItems.Id))
+            {
+                 _validator.SetMessage("Aww Snap, Entry does not exist. Are you trying to do a POST method?");
+                return BadRequest(new BadRequestObjectResult(_validator));
+            }
+            _context.Entry(pOSItems).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
             }
 
             return NoContent();
         }
-
-        // POST: api/POS
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPost]
+        [HttpPost("Inventory/CreateNewItem")]
         public async Task<ActionResult<POSItems>> PostPOSItems(POSItems pOSItems)
         {
-            _context.Items.Add(pOSItems);
-            if(POSItemsExists(pOSItems.Id)){
-                BadRequestObjectResult obj = new BadRequestObjectResult("Aww Snap, ID already taken. Did you mean to use PUT method?");
-                return BadRequest(obj);
+            if(_user == null || !_user.rights.CreateRights){
+                return Unauthorized();
             }
+            if (!_validator.ValidateItem(pOSItems))
+            {
+                return BadRequest(new BadRequestObjectResult(_validator));
+            }
+            if (POSItemsExists(pOSItems.Id))
+            {
+                _validator.SetMessage("Aww Snap, Entry does not exist. Are you trying to do a PUT method?");
+                return BadRequest(new BadRequestObjectResult(_validator));
+            }
+            _context.Items.Add(pOSItems);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetPOSItems", new { id = pOSItems.Id }, pOSItems);
+            return Created(HttpContext.Request.Path, this.Create201ResponseBody(pOSItems));
         }
-
-        // DELETE: api/POS/5
-        [HttpDelete("{id}")]
+        [HttpDelete("Inventory/RemoveItem")]
         public async Task<ActionResult<POSItems>> DeletePOSItems(long id)
         {
+            if(_user == null || !_user.rights.ModifyRights){
+                return Unauthorized();
+            }
             var pOSItems = await _context.Items.FindAsync(id);
             if (pOSItems == null)
             {
@@ -117,15 +109,37 @@ namespace TodoApi.Controllers
             _context.Items.Remove(pOSItems);
             await _context.SaveChangesAsync();
 
-            return pOSItems;
+            return NoContent();
         }
 
         private bool POSItemsExists(long id)
         {
             return _context.Items.Any(e => e.Id == id);
         }
-        private bool POSItemIsValid(POSItems items){
-            return true;
+
+        // Create a User
+        // Currently setting it as a dummy info as there is no way of adding users yet.
+
+        private UserProfile CreateUser(){
+
+            AccessRights rights = new AccessRights();
+            rights.ModifyRights = true;
+            rights.CreateRights = true;
+            rights.ViewRights = true;
+            UserProfile user = new UserProfile();
+            user.Name = "Dummy User";
+            user.rights = rights;
+            user.wallet = 10000;
+            return user; 
+        }
+        private Response201Body Create201ResponseBody(POSItems data){
+
+            Response201Body response = new Response201Body();
+            response.ExceutedBy = _user.Name;
+            response.data = data;
+            response.timestamp = DateTime.Now;
+            return response;
+
         }
     }
 }

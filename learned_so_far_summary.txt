@@ -1,0 +1,26 @@
+My Personal Learned So Far Notes 
+
+1. got a glipmse of basic concept/goal of .net core as a whole. 
+-  Microsoft open its door to cross platform in mind that its the future of software development. Product owners dont usually 
+use a specific environment for their solutions. Developing on every single OS enviromnent is costy for a business that want 
+to target all audience. As relevancy of other OS environment increases, the need of cross platform tool became relevant as well. 
+
+2. Learned REST.
+- while GET and POST is relevat to me as my previous enviromnent "PHP" as I exploring on Web API Development, 
+REST was been introduced to me. In my understanding its concept is like CRUD of traditional database but its more on user request and wait
+for expected response to the API Service Server.
+
+3. Learned some useful feature on ASP.net core for Web API development.  
+- Learned that it has automatic dependency injection feature which can make intances of interface managable. Its a very cool. 
+
+4. My understanding of Designing Web APIs so far. 
+Roadmap:
+ 1. create a request model. 
+ 2. create a context for the model 
+ 3. create a in-memory database for the requests. 
+ 4. create a controller for the business logic. 
+ 5. by taking advantage of in-memory database, the API might able to serve under heavy request traffic(assuming its controlled in some way) due to its fast data retrieval.
+ 6. if somehow need to save a log, data will be saved in a traditional database storage disk. 
+
+
+

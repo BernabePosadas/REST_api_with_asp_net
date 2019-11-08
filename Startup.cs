@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
+using TodoApi.Interfaces;
+using TodoApi.ConcreteImplementations;
 
 namespace TodoApi
 {
@@ -30,6 +32,7 @@ namespace TodoApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // add dependencies for DI
             services.AddDbContext<TodoContext>(opt =>
               opt.UseInMemoryDatabase("TodoList"));
               services.AddDbContext<POSContext>(opt =>
@@ -41,6 +44,7 @@ namespace TodoApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
+            services.AddTransient<IPOSItemValidator, POSItemValidator>();
             services.AddControllers();
         }
 

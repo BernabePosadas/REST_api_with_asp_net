@@ -1,7 +1,6 @@
 using System;
 
-namespace TodoApi
-{
+namespace TodoApi.Models{
     public class WeatherForecast
     {
         public DateTime Date { get; set; }
