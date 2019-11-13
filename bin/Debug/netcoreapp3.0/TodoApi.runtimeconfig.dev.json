@@ -1,8 +1,0 @@
-{
-  "runtimeOptions": {
-    "additionalProbingPaths": [
-      "C:\\Users\\Buildsmart IT\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\Buildsmart IT\\.nuget\\packages"
-    ]
-  }
-}
