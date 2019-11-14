@@ -45,6 +45,7 @@ namespace TodoApi
                 c.IncludeXmlComments(xmlPath);
             });
             services.AddTransient<IPOSItemValidator, POSItemValidator>();
+            services.AddTransient<ITransactionRequestValidator, TransactionRequestValidator>();
             services.AddControllers();
         }
 

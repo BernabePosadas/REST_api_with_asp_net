@@ -16,21 +16,21 @@ namespace TodoApi.Controllers
     {
         private readonly POSContext _context;
         private readonly IPOSItemValidator _validator;
+        private readonly ITransactionRequestValidator _cartValidator;
         private readonly UserProfile _user;
-        public int LastHTTPCode = 200;
-        public POSController(IPOSItemValidator validator, POSContext context)
+        private List<TransactionRequest> cart = new List<TransactionRequest>();
+        public POSController(IPOSItemValidator validator, ITransactionRequestValidator cartValidator, POSContext context)
         {
             this._context = context;
             this._validator = validator;
+            this._cartValidator = cartValidator;
             this._user = this.CreateUser();
         }
 
-        [HttpGet("Inventory/getItem")]
+        [HttpGet("Inventory/getItemInStock")]
         public async Task<ActionResult<IEnumerable<POSItems>>> GetItems(long? id)
         {
-            this.LastHTTPCode = 200;
             if(_user == null || !_user.rights.ViewRights){
-                this.LastHTTPCode = 401;
                 return Unauthorized();
             }
             if (!id.HasValue)
@@ -43,7 +43,6 @@ namespace TodoApi.Controllers
 
                 if (pOSItems == null)
                 {
-                    this.LastHTTPCode = 404;
                     return NotFound();
                 }
                 List<POSItems> item = new List<POSItems>();
@@ -56,82 +55,83 @@ namespace TodoApi.Controllers
         public async Task<IActionResult> PutPOSItems(POSItems pOSItems)
         {
             if(_user == null || !_user.rights.ModifyRights){
-                this.LastHTTPCode = 401;
                 return Unauthorized();
             }
             if (!_validator.ValidateItem(pOSItems))
             {   
-                this.LastHTTPCode = 400;
                 return BadRequest(new BadRequestObjectResult(_validator));
             }
             if (!POSItemsExists(pOSItems.Id))
             {
-                this.LastHTTPCode = 400;
-                 _validator.SetMessage("Aww Snap, Entry does not exist. Are you trying to do a POST method?");
+                 _validator.SetMessage("Entry does not exist. Are you trying to do a POST method?");
                 return BadRequest(new BadRequestObjectResult(_validator));
             }
-            _context.Entry(pOSItems).State = EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
+            if(await this.UpdateItem(pOSItems)){
+                return NoContent();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw;
+            else{
+                return StatusCode(500);
             }
-            this.LastHTTPCode = 204;
-            return NoContent();
         }
+        
         [HttpPost("Inventory/CreateNewItem")]
         public async Task<ActionResult<POSItems>> PostPOSItems(POSItems pOSItems)
         {
-            this.LastHTTPCode = 200;
             if(_user == null || !_user.rights.CreateRights){
-                this.LastHTTPCode = 400;
                 return Unauthorized();
             }
             if (!_validator.ValidateItem(pOSItems))
             {
-                this.LastHTTPCode = 400;
                 return BadRequest(new BadRequestObjectResult(_validator));
             }
             if (POSItemsExists(pOSItems.Id))
             {
-                this.LastHTTPCode = 400;
-                _validator.SetMessage("Aww Snap, Entry does not exist. Are you trying to do a PUT method?");
+                _validator.SetMessage("Entry does not exist. Are you trying to do a PUT method?");
                 return BadRequest(new BadRequestObjectResult(_validator));
             }
             _context.Items.Add(pOSItems);
             await _context.SaveChangesAsync();
-            this.LastHTTPCode = 201;
             return Created(HttpContext.Request.Path, this.Create201ResponseBody(pOSItems));
         }
         [HttpDelete("Inventory/RemoveItem")]
         public async Task<ActionResult<POSItems>> DeletePOSItems(long id)
         {
-            this.LastHTTPCode = 200;
             if(_user == null || !_user.rights.ModifyRights){
-                this.LastHTTPCode = 401;
                 return Unauthorized();
             }
             var pOSItems = await _context.Items.FindAsync(id);
             if (pOSItems == null)
             {
-                this.LastHTTPCode = 404;
+
                 return NotFound();
             }
 
             _context.Items.Remove(pOSItems);
             await _context.SaveChangesAsync();
-            this.LastHTTPCode = 204;
             return NoContent();
         }
+        
+        [HttpPost("POS/AddToCart")]
+        public async Task<ActionResult<TransactionRequest>> AddToCart(TransactionRequest item){
+             if(!this._cartValidator.ValidateItem(item)){
+                 return BadRequest(new BadRequestObjectResult(this._cartValidator));
+             }
+             if(!this.POSItemsExists(item.Id)){
+                  _validator.SetMessage("Item does not exist.");
+                return BadRequest(new BadRequestObjectResult(_validator));
+             }
+             var response = await this.AddItemToCart(item);
+             return NoContent();
+        } 
 
         private bool POSItemsExists(long id)
         {
             return _context.Items.Any(e => e.Id == id);
         }
-
+        private bool TransactionRequestExist(long id)
+        {
+            return cart.Any(e => e.Id == id);
+        }
         // Create a User
         // Currently setting it as a dummy info as there is no way of adding users yet.
 
@@ -152,6 +152,44 @@ namespace TodoApi.Controllers
             response.data = data;
             response.timestamp = DateTime.Now;
             return response;
+        }
+        private async Task<bool> UpdateItem(POSItems pOSItems){
+            _context.Entry(pOSItems).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+            return true;
+        }
+
+        public async Task<dynamic> AddItemToCart(TransactionRequest item){
+            if(!POSItemsExists(item.Id)){
+                return "Item does not exist";
+            }
+            POSItems entry_item = _context.Items.Find(item.Id);
+            int stock = (int)entry_item.InStock - (int)item.Quantity;
+            if(stock < 0){
+                return  "Insufficient Stock";
+            }
+            entry_item.InStock -= item.Quantity; 
+            item = this.UpdateIfExist(item);
+            await UpdateItem(entry_item);
+            return true;
+        }
+
+        public TransactionRequest UpdateIfExist(TransactionRequest item){
+             if(this.TransactionRequestExist(item.Id)){
+                 TransactionRequest request_item = cart.Find(r => r.Id == item.Id);
+                 request_item.Quantity += item.Quantity;
+                 return request_item;
+             }
+             else{
+                 return item;
+             }
         }
     }
 }
