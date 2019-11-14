@@ -4,8 +4,8 @@ dotnet: 3.0
 os: 
 - linux
 install:
-- dotnet restore
+- dotnet restore TodoApi  
 
 script:
- - dotnet build
+ - dotnet build TodoApi
  - dotnet test Test
