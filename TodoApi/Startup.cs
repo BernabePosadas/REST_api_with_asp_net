@@ -14,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using TodoApi.Models;
 using TodoApi.Interfaces;
 using TodoApi.ConcreteImplementations;
@@ -42,9 +43,17 @@ namespace TodoApi
             services.AddDbContext<TodoContext>(opt =>
               opt.UseInMemoryDatabase("TodoList"));
               services.AddDbContext<POSContext>(opt =>
-              opt.UseInMemoryDatabase("POSList"));
+              opt.UseMySql("Server=localhost;Database=posapi;User=root;Password=",
+               mySqlOptions =>
+                    {
+                        mySqlOptions.ServerVersion(new Version(10, 3, 16), ServerType.MariaDb);
+                    }));
               services.AddDbContext<TransactionContext>(opt =>
-              opt.UseInMemoryDatabase("TransactionList"));
+              opt.UseMySql("Server=localhost;Database=posapi;User=root;Password=",
+               mySqlOptions =>
+                    {
+                        mySqlOptions.ServerVersion(new Version(10, 3, 16), ServerType.MariaDb);
+                    }));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });

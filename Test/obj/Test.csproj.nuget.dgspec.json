@@ -152,6 +152,10 @@
               "target": "Package",
               "version": "[3.0.0, )"
             },
+            "Pomelo.EntityFrameworkCore.MySql": {
+              "target": "Package",
+              "version": "[3.0.0-rc3, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[5.0.0-rc4, )"

@@ -8,7 +8,6 @@ namespace TodoApi.Models
             : base(options)
         {
         }
-
-        public DbSet<TransactionRequest> Items { get; set; }
+        public DbSet<TransactionRequest> cart_items { get; set; }
     }
 }

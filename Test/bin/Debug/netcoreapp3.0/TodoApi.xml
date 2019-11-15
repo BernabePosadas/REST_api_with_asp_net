@@ -22,6 +22,14 @@
              <response code="401">Returned if request is denied due to account restrictions</response> 
              <response code="404">Returned if no item was found</response> 
         </member>
+        <member name="M:TodoApi.Controllers.POSController.GetItemsInCart">
+            <summary>
+            Fetches items currently on cart.
+            </summary>
+            <returns>The requested item</returns>
+            <response code="200">Returns item requested</response>
+            <response code="401">Returned if request is denied due to account restrictions</response> 
+        </member>
         <member name="M:TodoApi.Controllers.POSController.PutPOSItems(TodoApi.Models.POSItems)">
              <summary>
              Updates Item in stock.

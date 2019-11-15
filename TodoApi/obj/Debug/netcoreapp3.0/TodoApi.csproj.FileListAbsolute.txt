@@ -121,3 +121,6 @@ C:\xampp\htdocs\REST API Playground\TodoApi\TodoApi\obj\Debug\netcoreapp3.0\Todo
 C:\xampp\htdocs\REST API Playground\TodoApi\TodoApi\obj\Debug\netcoreapp3.0\TodoApi.dll
 C:\xampp\htdocs\REST API Playground\TodoApi\TodoApi\obj\Debug\netcoreapp3.0\TodoApi.xml
 C:\xampp\htdocs\REST API Playground\TodoApi\TodoApi\obj\Debug\netcoreapp3.0\TodoApi.pdb
+C:\xampp\htdocs\REST API Playground\TodoApi\TodoApi\bin\Debug\netcoreapp3.0\MySqlConnector.dll
+C:\xampp\htdocs\REST API Playground\TodoApi\TodoApi\bin\Debug\netcoreapp3.0\Pomelo.EntityFrameworkCore.MySql.dll
+C:\xampp\htdocs\REST API Playground\TodoApi\TodoApi\bin\Debug\netcoreapp3.0\Pomelo.JsonObject.dll

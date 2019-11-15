@@ -5,7 +5,13 @@
 Welcome to my REST api using ASP.net training ground. This served as my central repo for practicing concept of developing Web API.   
 
 # Stack:
-- .net core SDK 3.0(backwards compatibility untested). 
+- ASP.net core 
+
+# .NET Core SDK version used
+- Version 3.0
+ 
+# Database
+- MariaDB 10.3.16
 
 # API Content:
 - WeatherForcast 

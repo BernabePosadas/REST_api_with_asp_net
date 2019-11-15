@@ -78,6 +78,7 @@ namespace TodoApi.Controllers
         /// <returns>The requested item</returns>
         /// <response code="200">Returns item requested</response>
         /// <response code="401">Returned if request is denied due to account restrictions</response> 
+        [HttpGet("Cart")]
         public async Task<ActionResult<IEnumerable<POSItems>>> GetItemsInCart()
         {
             if (_user == null || !_user.rights.ViewRights)
@@ -250,14 +251,13 @@ namespace TodoApi.Controllers
         {
             decimal price = 0;
             Receipt receipt = new Receipt();
-            var cart = await this.cart.Items.ToListAsync();
+            var cart = await this.cart.cart_items.ToListAsync();
             foreach (var cart_item in cart)
             {
                 POSItems item_data = await _context.Items.FindAsync(cart_item.Id);
                 decimal item_price = item_data.price * cart_item.Quantity;
                 price += item_price;
                 receipt.purchased_items.Add(this.create_purchase_item_entry(item_price, item_data, cart_item));
-
             }
             if (this._user.wallet < price)
             {
@@ -267,6 +267,7 @@ namespace TodoApi.Controllers
             receipt.total_price = price;
             this._user.wallet -= price;
             receipt.remaining_balance = this._user.wallet;
+            this.cart.Database.ExecuteSqlRaw("TRUNCATE `cart_items`");
             return Ok(receipt);
         }
         private PurchasedItem create_purchase_item_entry(decimal price, POSItems item, TransactionRequest request)
@@ -284,9 +285,8 @@ namespace TodoApi.Controllers
         }
         private bool TransactionRequestExist(long id)
         {
-            return cart.Items.Any(e => e.Id == id);
+            return cart.cart_items.Any(e => e.Id == id);
         }
-
 
         // Create a User
         // Currently setting it as a dummy info as there is no way of adding users yet.
@@ -347,7 +347,7 @@ namespace TodoApi.Controllers
         {
             if (this.TransactionRequestExist(item.Id))
             {
-                TransactionRequest request_item = cart.Items.Find(item.Id);
+                TransactionRequest request_item = cart.cart_items.Find(item.Id);
                 request_item.Quantity += item.Quantity;
                 cart.Entry(request_item).State = EntityState.Modified;
                 try
@@ -361,7 +361,7 @@ namespace TodoApi.Controllers
             }
             else
             {
-                this.cart.Items.Add(item);
+                this.cart.cart_items.Add(item);
                 await this.cart.SaveChangesAsync();
             }
         }

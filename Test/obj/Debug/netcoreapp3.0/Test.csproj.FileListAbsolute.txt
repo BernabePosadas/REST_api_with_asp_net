@@ -201,3 +201,6 @@ C:\xampp\htdocs\REST API Playground\TodoApi\Test\obj\Debug\netcoreapp3.0\Test.As
 C:\xampp\htdocs\REST API Playground\TodoApi\Test\obj\Debug\netcoreapp3.0\Test.csproj.CopyComplete
 C:\xampp\htdocs\REST API Playground\TodoApi\Test\obj\Debug\netcoreapp3.0\Test.dll
 C:\xampp\htdocs\REST API Playground\TodoApi\Test\obj\Debug\netcoreapp3.0\Test.pdb
+C:\xampp\htdocs\REST API Playground\TodoApi\Test\bin\Debug\netcoreapp3.0\MySqlConnector.dll
+C:\xampp\htdocs\REST API Playground\TodoApi\Test\bin\Debug\netcoreapp3.0\Pomelo.EntityFrameworkCore.MySql.dll
+C:\xampp\htdocs\REST API Playground\TodoApi\Test\bin\Debug\netcoreapp3.0\Pomelo.JsonObject.dll

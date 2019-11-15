@@ -28,6 +28,5 @@ namespace TodoApi.ConcreteImplementations
         public void SetMessage(string message){
             this.message = string.Format("Aww Snap, execution failed. reason: {0}", message);
         }
-
     }
 }
