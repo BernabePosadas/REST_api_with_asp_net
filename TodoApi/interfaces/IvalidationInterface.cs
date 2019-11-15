@@ -10,6 +10,5 @@ namespace TodoApi.Interfaces{
     public interface ITransactionRequestValidator : IValidationMessage
     {
         public bool ValidateItem(TransactionRequest item);
-        
     }
 }

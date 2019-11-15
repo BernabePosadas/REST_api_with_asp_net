@@ -32,11 +32,19 @@ namespace TodoApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                 .AllowAnyHeader();
+            }));
             // add dependencies for DI
             services.AddDbContext<TodoContext>(opt =>
               opt.UseInMemoryDatabase("TodoList"));
               services.AddDbContext<POSContext>(opt =>
               opt.UseInMemoryDatabase("POSList"));
+              services.AddDbContext<TransactionContext>(opt =>
+              opt.UseInMemoryDatabase("TransactionList"));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
@@ -56,6 +64,7 @@ namespace TodoApi
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseCors("MyPolicy");
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

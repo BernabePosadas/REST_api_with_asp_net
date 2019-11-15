@@ -17,13 +17,14 @@ namespace Test
         private POSContext _context;
         private POSItemValidator _validator;
         private TransactionRequestValidator _cartValidator;
-
+        private TransactionContext _cart;
         public AddingToCartTest()
         {
             this._itemGenerator = new MockItem();
             this._context = this.GenerateMockContextData();
             this._validator = new POSItemValidator();
             this._cartValidator = new TransactionRequestValidator();
+            this._cart = this.GenerateTransactionContext();
         }
         [Fact]
         public void TestAddToCart()
@@ -31,7 +32,7 @@ namespace Test
             TransactionRequest requestItem = new TransactionRequest();
             requestItem.Id = 1;
             requestItem.Quantity = 10;
-            var controller = new POSController(this._validator, this._cartValidator, this._context);
+            var controller = new POSController(this._validator, this._cartValidator, this._context, this._cart);
             var response = controller.AddItemToCart(requestItem);
             Assert.IsType<bool>(response.Result);
         }
@@ -41,7 +42,7 @@ namespace Test
             TransactionRequest requestItem = new TransactionRequest();
             requestItem.Id = 2;
             requestItem.Quantity = 10;
-            var controller = new POSController(this._validator, this._cartValidator, this._context);
+            var controller = new POSController(this._validator, this._cartValidator, this._context, this._cart);
             var response = controller.AddItemToCart(requestItem);
             string message = response.Result.ToString();
             Assert.True(message.Equals("Insufficient Stock"));
@@ -52,7 +53,7 @@ namespace Test
             TransactionRequest requestItem = new TransactionRequest();
             requestItem.Id = 5;
             requestItem.Quantity = 10;
-            var controller = new POSController(this._validator, this._cartValidator, this._context);
+            var controller = new POSController(this._validator, this._cartValidator, this._context, this._cart);
             var response = controller.AddItemToCart(requestItem);
             string message = response.Result.ToString();
             Assert.True(message.Equals("Item does not exist"));
@@ -67,6 +68,12 @@ namespace Test
             context = this.AddItem(context, this._itemGenerator.GenerateMockItem3());     
             return context;
         }
+        private TransactionContext GenerateTransactionContext(){
+            var options = new DbContextOptionsBuilder<TransactionContext>()
+                    .UseInMemoryDatabase("TransactionList").Options;
+            TransactionContext context = new TransactionContext(options);
+            return context;
+        }
         private POSContext AddItem(POSContext context, POSItems item)
         {
             if(!context.Items.Any(e => e.Id == item.Id)){
@@ -76,5 +83,4 @@ namespace Test
             return context;
         }
     }
-
 }

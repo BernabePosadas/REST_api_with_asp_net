@@ -4,6 +4,108 @@
         <name>TodoApi</name>
     </assembly>
     <members>
+        <member name="M:TodoApi.Controllers.POSController.GetItems(System.Nullable{System.Int64})">
+             <summary>
+             Fetches items currently on stock.
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 GET 
+                 {
+                    "id": 1
+                 }
+             </remarks>
+             <param name="id">The ID of the requested item, if not given will retrieve all items on stock</param>
+             <returns>The requested item</returns>
+             <response code="200">Returns item requested</response>
+             <response code="401">Returned if request is denied due to account restrictions</response> 
+             <response code="404">Returned if no item was found</response> 
+        </member>
+        <member name="M:TodoApi.Controllers.POSController.PutPOSItems(TodoApi.Models.POSItems)">
+             <summary>
+             Updates Item in stock.
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 PUT 
+                 {
+                    "Id": 1,
+                    "Name" : "PS1",
+                    "price": 20,
+                    "InStock": 10
+                 }
+             </remarks>
+             <returns>HTTP 204 response</returns>
+             <response code="204">Indicates Operation was successfull</response>
+             <response code="401">Returned if request is denied due to account restrictions</response> 
+             <response code="400">Returned if there is a problem with details</response> 
+        </member>
+        <member name="M:TodoApi.Controllers.POSController.PostPOSItems(TodoApi.Models.POSItems)">
+             <summary>
+             Adds item in stock.
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 POST 
+                 {
+                    "Id": 1,
+                    "Name" : "PS1",
+                    "price": 20,
+                    "InStock": 10
+                 }
+             </remarks>
+             <returns>HTTP 201 Response Message</returns>
+             <response code="201">Indicates Operation was successfull</response>
+             <response code="401">Returned if request is denied due to account restrictions</response> 
+             <response code="400">Returned if there is a problem with details</response> 
+        </member>
+        <member name="M:TodoApi.Controllers.POSController.DeletePOSItems(System.Int64)">
+             <summary>
+             Removes item in stock.
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 DELETE 
+                 {
+                    "id": 1
+                 }
+             </remarks>
+             <returns>HTTP 204 response</returns>
+             <response code="201">Indicates Operation was successfull</response>
+             <response code="401">Returned if request is denied due to account restrictions</response> 
+             <response code="400">Returned if there is a problem with details</response> 
+        </member>
+        <member name="M:TodoApi.Controllers.POSController.AddToCart(TodoApi.Models.TransactionRequest)">
+             <summary>
+             Adds item in cart.
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 POST
+                 {
+                    "id": 1,
+                    "Quantity" : 10
+                 }
+             </remarks>
+             <returns>HTTP 204 Response</returns>
+             <response code="204">Indicates Operation was successfull</response>
+             <response code="401">Returned if request is denied due to account restrictions</response> 
+             <response code="400">Returned if there is a problem with details</response> 
+        </member>
+        <member name="M:TodoApi.Controllers.POSController.Checkout">
+            <summary>
+            Cart Checkout.
+            </summary>
+            <returns>HTTP 204 Response</returns>
+            <response code="204">Indicates Operation was successfull</response>
+            <response code="401">Returned if request is denied due to account restrictions</response> 
+            <response code="400">Returned if there is a problem with details</response> 
+        </member>
         <member name="M:TodoApi.Controllers.TodoItemsController.PostTodoItem(TodoApi.Models.TodoItem)">
              <summary>
              Creates a TodoItem.
