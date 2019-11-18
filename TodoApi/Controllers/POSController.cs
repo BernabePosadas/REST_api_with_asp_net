@@ -28,6 +28,21 @@ namespace TodoApi.Controllers
             this._cartValidator = cartValidator;
             this.cart = cart;
             this._user = this.CreateUser();
+            if(!this._context.Users.Any(u => u.user_id == this._user.user_id)){
+                this._user = this.CreateUser();
+                this._context.Users.Add(this._user);
+                this._context.SaveChanges();
+            }
+            else{
+                var users = this._context.Users.Include(u => u.rights);
+                foreach (var user in users)
+                {
+                    if(user.user_id == this._user.user_id){
+                        this._user = user;
+                    }
+                }
+                //this._context.Database.ExecuteSqlRaw("DELETE users, accessrights FROM users JOIN accessrights ON users.user_id = accessrights.user_id WHERE users.user_id = {0}", this._user.unique_id);
+            }
         }
 
         /// <summary>
@@ -79,13 +94,13 @@ namespace TodoApi.Controllers
         /// <response code="200">Returns item requested</response>
         /// <response code="401">Returned if request is denied due to account restrictions</response> 
         [HttpGet("Cart")]
-        public async Task<ActionResult<IEnumerable<POSItems>>> GetItemsInCart()
+        public async Task<ActionResult<IEnumerable<TransactionRequest>>> GetItemsInCart()
         {
             if (_user == null || !_user.rights.ViewRights)
             {
                 return Unauthorized();
             }
-            return await _context.Items.ToListAsync();
+            return await this.cart.cart_items.ToListAsync();
         }
 
         /// <summary>
@@ -122,7 +137,7 @@ namespace TodoApi.Controllers
                 _validator.SetMessage("Entry does not exist. Are you trying to do a POST method?");
                 return BadRequest(new BadRequestObjectResult(_validator));
             }
-            if (await this.UpdateItem(pOSItems))
+            if (await this.UpdateEntry(pOSItems))
             {
                 return NoContent();
             }
@@ -267,8 +282,13 @@ namespace TodoApi.Controllers
             receipt.total_price = price;
             this._user.wallet -= price;
             receipt.remaining_balance = this._user.wallet;
-            this.cart.Database.ExecuteSqlRaw("TRUNCATE `cart_items`");
-            return Ok(receipt);
+            if(await this.UpdateEntry(this._user)){
+                this.cart.Database.ExecuteSqlRaw("TRUNCATE `cart_items`");
+                return Ok(receipt);
+            }
+            else{
+                return StatusCode(500);
+            }
         }
         private PurchasedItem create_purchase_item_entry(decimal price, POSItems item, TransactionRequest request)
         {
@@ -293,13 +313,17 @@ namespace TodoApi.Controllers
         private UserProfile CreateUser()
         {
             AccessRights rights = new AccessRights();
+            rights.user_id = "DUMMY_0001";
             rights.ModifyRights = true;
             rights.CreateRights = true;
             rights.ViewRights = true;
             UserProfile user = new UserProfile();
+            user.user_id = rights.user_id;
             user.Name = "Dummy User";
             user.rights = rights;
             user.wallet = 10000;
+            rights.users = user;
+            user.rights = rights;
             return user;
         }
         private Response201Body Create201ResponseBody(POSItems data)
@@ -310,9 +334,9 @@ namespace TodoApi.Controllers
             response.timestamp = DateTime.Now;
             return response;
         }
-        private async Task<bool> UpdateItem(POSItems pOSItems)
+        private async Task<bool> UpdateEntry(object obj)
         {
-            _context.Entry(pOSItems).State = EntityState.Modified;
+            _context.Entry(obj).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();
@@ -339,7 +363,7 @@ namespace TodoApi.Controllers
             }
             entry_item.InStock -= item.Quantity;
             this.UpdateIfExist(item);
-            await UpdateItem(entry_item);
+            await UpdateEntry(entry_item);
             return true;
         }
         [NonAction]

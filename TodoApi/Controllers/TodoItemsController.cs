@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace TodoApi.Controllers
 {
     [Route("api/TodoItems")]
+    [EnableCors("MyPolicy")]
     [ApiController]
     public class TodoItemsController : ControllerBase
     {

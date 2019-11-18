@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TodoApi.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace TodoApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [EnableCors("MyPolicy")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
