@@ -7,8 +7,7 @@ install:
 - dotnet restore TodoApi
 
 env: 
- - CODECOV_TOKEN=e522be9b-7ce4-43f4-8488-8439ec237c5a
-
+ - CODECOV_TOKEN="e522be9b-7ce4-43f4-8488-8439ec237c5a"
 script:
  - dotnet build TodoApi
  - dotnet test Test
