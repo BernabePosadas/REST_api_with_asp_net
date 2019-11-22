@@ -9,7 +9,4 @@ install:
 - dotnet restore TodoApi
 script:
  - dotnet build TodoApi
- - dotnet test Test --logger "xunit;LogFileName=TestResults.xml" 
-after_script:
-  - bash <(curl -s https://codecov.io/bash)
-  - bash <(./codecov -f "TestResults.xml")
+ - dotnet test Test
