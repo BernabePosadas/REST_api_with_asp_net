@@ -4,11 +4,10 @@ dotnet: 3.0
 os:
 - linux
 install:
-- dotnet restore TodoApi
-before_build:
 - dotnet tool install --global Codecov.Tool
+- dotnet restore TodoApi
 script:
  - dotnet build TodoApi
  - dotnet test Test
 after_script:
-  - codecov
+ - codecov
