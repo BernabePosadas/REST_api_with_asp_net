@@ -1,5 +1,6 @@
 language: csharp
 mono: none
+sudo: required 
 dotnet: 3.0
 os:
 - linux
@@ -10,5 +11,5 @@ script:
  - dotnet build TodoApi
  - dotnet test Test
 after_script:
-  - cd ..
+  - bash <(curl -s https://codecov.io/bash)
   - codecov
