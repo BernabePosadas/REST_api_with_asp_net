@@ -10,3 +10,5 @@ before_build:
 script:
  - dotnet build TodoApi
  - dotnet test Test
+after_script:
+  - codecov
