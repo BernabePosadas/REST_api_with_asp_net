@@ -5,6 +5,8 @@ os:
 - linux
 install:
 - dotnet restore TodoApi
+before_build:
+- dotnet tool install --global Codecov.Tool
 script:
  - dotnet build TodoApi
  - dotnet test Test
