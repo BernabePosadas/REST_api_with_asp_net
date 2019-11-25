@@ -1,6 +1,6 @@
 language: csharp
 mono: none
-sudo: required 
+sudo: required
 dotnet: 3.0
 os:
 - linux
