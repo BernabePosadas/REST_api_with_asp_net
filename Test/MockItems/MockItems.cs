@@ -3,8 +3,8 @@ using TodoApi.Models;
 
 namespace  Test.MockItems
 {
-    public class MockItem{
-        public POSItems GenerateMockItem1(){
+    public static class MockItem{
+        public static POSItems GenerateMockItem1(){
             POSItems item = new POSItems();
             item.Id = 1;
             item.Name = "PS1";
@@ -12,7 +12,7 @@ namespace  Test.MockItems
             item.InStock = 10;
             return item;
         }
-        public POSItems GenerateMockItem2(){
+        public static POSItems GenerateMockItem2(){
             POSItems item = new POSItems();
             item.Id = 2;
             item.Name = "PS2";
@@ -20,7 +20,7 @@ namespace  Test.MockItems
             item.InStock = 5;
             return item;
         }
-        public POSItems GenerateMockItem3(){
+        public static POSItems GenerateMockItem3(){
             POSItems item = new POSItems();
             item.Id = 3;
             item.Name = "PS3";

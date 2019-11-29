@@ -13,14 +13,12 @@ namespace Test
 {
     public class AddingToCartTest
     {
-        private static MockItem _itemGenerator;
         private readonly POSContext _context;
         private readonly POSItemValidator _validator;
         private readonly TransactionRequestValidator _cartValidator;
         private readonly TransactionContext _cart;
         public AddingToCartTest()
         {
-            AddingToCartTest._itemGenerator = new MockItem();
             this._context = AddingToCartTest.GenerateMockContextData();
             this._validator = new POSItemValidator();
             this._cartValidator = new TransactionRequestValidator();
@@ -63,9 +61,9 @@ namespace Test
             var options = new DbContextOptionsBuilder<POSContext>()
                     .UseInMemoryDatabase("TodoList").Options;
             POSContext context = new POSContext(options);
-            context = AddingToCartTest.AddItem(context, AddingToCartTest._itemGenerator.GenerateMockItem1());
-            context = AddingToCartTest.AddItem(context, AddingToCartTest._itemGenerator.GenerateMockItem2());
-            context = AddingToCartTest.AddItem(context, AddingToCartTest._itemGenerator.GenerateMockItem3());     
+            context = AddingToCartTest.AddItem(context, MockItem.GenerateMockItem1());
+            context = AddingToCartTest.AddItem(context,MockItem.GenerateMockItem2());
+            context = AddingToCartTest.AddItem(context, MockItem.GenerateMockItem3());     
             return context;
         }
         private static TransactionContext GenerateTransactionContext(){
