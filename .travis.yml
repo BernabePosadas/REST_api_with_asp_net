@@ -1,11 +1,12 @@
 language: csharp
 mono: none
+sudo: required
 dotnet: 3.0
 os:
 - linux
 install:
+- dotnet tool install --global Codecov.Tool
 - dotnet restore TodoApi
-
 script:
  - dotnet build TodoApi
  - dotnet test Test
