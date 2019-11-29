@@ -8,9 +8,9 @@ namespace TodoApi.Models
     {
         [Key]
         public string user_id { get; set; }
-        public bool ModifyRights { get; set; } = false;
-        public bool  ViewRights { get; set; } = false;
-        public bool CreateRights { get; set; } = false;
+        public bool ModifyRights { get; set; } 
+        public bool  ViewRights { get; set; }
+        public bool CreateRights { get; set; }
 
         [ForeignKey("user_id")]
         public UserProfile users { get; set; }
