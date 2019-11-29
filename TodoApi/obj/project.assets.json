@@ -1180,7 +1180,7 @@
           "lib/netstandard1.6/NuGet.Frameworks.dll": {}
         }
       },
-      "Pomelo.EntityFrameworkCore.MySql/3.0.0-rc3.final": {
+      "Pomelo.EntityFrameworkCore.MySql/3.0.0": {
         "type": "package",
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Relational": "3.0.0",
@@ -4609,15 +4609,15 @@
         "nuget.frameworks.nuspec"
       ]
     },
-    "Pomelo.EntityFrameworkCore.MySql/3.0.0-rc3.final": {
-      "sha512": "JDxktZ2rzcUeUXp15Y88lotgNBc0KVaFJ/QkdbPBJcd27yIooB9SuRfIp02fjygPYEGp6doBIzszoWzKgOf12w==",
+    "Pomelo.EntityFrameworkCore.MySql/3.0.0": {
+      "sha512": "JybFRUYDdDd09Td/ZyUoKk/xJBx5KF5HT00B1Il2DODalTvO3L6Wlo0qo28e/Ibk6NY30EybI0H2ceDE4u0Nyw==",
       "type": "package",
-      "path": "pomelo.entityframeworkcore.mysql/3.0.0-rc3.final",
+      "path": "pomelo.entityframeworkcore.mysql/3.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "lib/netstandard2.1/Pomelo.EntityFrameworkCore.MySql.dll",
-        "pomelo.entityframeworkcore.mysql.3.0.0-rc3.final.nupkg.sha512",
+        "pomelo.entityframeworkcore.mysql.3.0.0.nupkg.sha512",
         "pomelo.entityframeworkcore.mysql.nuspec"
       ]
     },
@@ -9176,7 +9176,7 @@
       "Microsoft.EntityFrameworkCore.InMemory >= 3.0.0",
       "Microsoft.EntityFrameworkCore.SqlServer >= 3.0.0",
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 3.0.0",
-      "Pomelo.EntityFrameworkCore.MySql >= 3.0.0-rc3",
+      "Pomelo.EntityFrameworkCore.MySql >= 3.0.0",
       "Swashbuckle.AspNetCore >= 5.0.0-rc4"
     ]
   },
@@ -9239,7 +9239,7 @@
           },
           "Pomelo.EntityFrameworkCore.MySql": {
             "target": "Package",
-            "version": "[3.0.0-rc3, )"
+            "version": "[3.0.0, )"
           },
           "Swashbuckle.AspNetCore": {
             "target": "Package",
@@ -9267,17 +9267,5 @@
         "runtimeIdentifierGraphPath": "D:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "TodoApi depends on Pomelo.EntityFrameworkCore.MySql (>= 3.0.0-rc3) but Pomelo.EntityFrameworkCore.MySql 3.0.0-rc3 was not found. An approximate best match of Pomelo.EntityFrameworkCore.MySql 3.0.0-rc3.final was resolved.",
-      "libraryId": "Pomelo.EntityFrameworkCore.MySql",
-      "targetGraphs": [
-        ".NETCoreApp,Version=v3.0"
-      ]
-    }
-  ]
+  }
 }

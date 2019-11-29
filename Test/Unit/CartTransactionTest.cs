@@ -13,18 +13,18 @@ namespace Test
 {
     public class AddingToCartTest
     {
-        private MockItem _itemGenerator;
-        private POSContext _context;
-        private POSItemValidator _validator;
-        private TransactionRequestValidator _cartValidator;
-        private TransactionContext _cart;
+        private static MockItem _itemGenerator;
+        private readonly POSContext _context;
+        private readonly POSItemValidator _validator;
+        private readonly TransactionRequestValidator _cartValidator;
+        private readonly TransactionContext _cart;
         public AddingToCartTest()
         {
-            this._itemGenerator = new MockItem();
-            this._context = this.GenerateMockContextData();
+            AddingToCartTest._itemGenerator = new MockItem();
+            this._context = AddingToCartTest.GenerateMockContextData();
             this._validator = new POSItemValidator();
             this._cartValidator = new TransactionRequestValidator();
-            this._cart = this.GenerateTransactionContext();
+            this._cart = AddingToCartTest.GenerateTransactionContext();
         }
         [Fact]
         public void TestAddToCart()
@@ -58,23 +58,23 @@ namespace Test
             string message = response.Result.ToString();
             Assert.True(message.Equals("Item does not exist"));
         }
-        private POSContext GenerateMockContextData()
+        private static POSContext GenerateMockContextData()
         {
             var options = new DbContextOptionsBuilder<POSContext>()
                     .UseInMemoryDatabase("TodoList").Options;
             POSContext context = new POSContext(options);
-            context = this.AddItem(context, this._itemGenerator.GenerateMockItem1());
-            context = this.AddItem(context, this._itemGenerator.GenerateMockItem2());
-            context = this.AddItem(context, this._itemGenerator.GenerateMockItem3());     
+            context = AddingToCartTest.AddItem(context, AddingToCartTest._itemGenerator.GenerateMockItem1());
+            context = AddingToCartTest.AddItem(context, AddingToCartTest._itemGenerator.GenerateMockItem2());
+            context = AddingToCartTest.AddItem(context, AddingToCartTest._itemGenerator.GenerateMockItem3());     
             return context;
         }
-        private TransactionContext GenerateTransactionContext(){
+        private static TransactionContext GenerateTransactionContext(){
             var options = new DbContextOptionsBuilder<TransactionContext>()
                     .UseInMemoryDatabase("TransactionList").Options;
             TransactionContext context = new TransactionContext(options);
             return context;
         }
-        private POSContext AddItem(POSContext context, POSItems item)
+        private static POSContext AddItem(POSContext context, POSItems item)
         {
             if(!context.Items.Any(e => e.Id == item.Id)){
                 context.Add(item);

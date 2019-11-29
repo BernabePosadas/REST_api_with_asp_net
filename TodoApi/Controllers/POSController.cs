@@ -27,9 +27,9 @@ namespace TodoApi.Controllers
             this._validator = validator;
             this._cartValidator = cartValidator;
             this.cart = cart;
-            this._user = this.CreateUser();
+            this._user = POSController.CreateUser();
             if(!this._context.Users.Any(u => u.user_id == this._user.user_id)){
-                this._user = this.CreateUser();
+                this._user = POSController.CreateUser();
                 this._context.Users.Add(this._user);
                 this._context.SaveChanges();
             }
@@ -41,7 +41,6 @@ namespace TodoApi.Controllers
                         this._user = user;
                     }
                 }
-                //this._context.Database.ExecuteSqlRaw("DELETE users, accessrights FROM users JOIN accessrights ON users.user_id = accessrights.user_id WHERE users.user_id = {0}", this._user.unique_id);
             }
         }
 
@@ -70,11 +69,11 @@ namespace TodoApi.Controllers
             }
             if (!id.HasValue)
             {
-                return await _context.Items.ToListAsync();
+                return await _context.Items.ToListAsync().ConfigureAwait(false);
             }
             else
             {
-                var pOSItems = await _context.Items.FindAsync(id);
+                var pOSItems = await _context.Items.FindAsync(id).ConfigureAwait(false);
 
                 if (pOSItems == null)
                 {
@@ -82,7 +81,6 @@ namespace TodoApi.Controllers
                 }
                 List<POSItems> item = new List<POSItems>();
                 item.Add(pOSItems);
-                IEnumerable<POSItems> list = item;
                 return item;
             }
         }
@@ -100,7 +98,7 @@ namespace TodoApi.Controllers
             {
                 return Unauthorized();
             }
-            return await this.cart.cart_items.ToListAsync();
+            return await this.cart.cart_items.ToListAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -137,7 +135,7 @@ namespace TodoApi.Controllers
                 _validator.SetMessage("Entry does not exist. Are you trying to do a POST method?");
                 return BadRequest(new BadRequestObjectResult(_validator));
             }
-            if (await this.UpdateEntry(pOSItems))
+            if (await this.UpdateEntry(pOSItems).ConfigureAwait(false))
             {
                 return NoContent();
             }
@@ -182,7 +180,7 @@ namespace TodoApi.Controllers
                 return BadRequest(new BadRequestObjectResult(_validator));
             }
             _context.Items.Add(pOSItems);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync().ConfigureAwait(false);
             return Created(HttpContext.Request.Path, this.Create201ResponseBody(pOSItems));
         }
 
@@ -214,7 +212,7 @@ namespace TodoApi.Controllers
                 return NotFound();
             }
             _context.Items.Remove(pOSItems);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync().ConfigureAwait(false);
             return NoContent();
         }
         /// <summary>
@@ -245,7 +243,7 @@ namespace TodoApi.Controllers
                 _validator.SetMessage("Item does not exist.");
                 return BadRequest(new BadRequestObjectResult(_validator));
             }
-            var response = await this.AddItemToCart(item);
+            var response = await this.AddItemToCart(item).ConfigureAwait(false);
             if (response.GetType() == typeof(string))
             {
                 _validator.SetMessage(response);
@@ -266,13 +264,13 @@ namespace TodoApi.Controllers
         {
             decimal price = 0;
             Receipt receipt = new Receipt();
-            var cart = await this.cart.cart_items.ToListAsync();
-            foreach (var cart_item in cart)
+            var CartItem = await this.cart.cart_items.ToListAsync().ConfigureAwait(false);
+            foreach (var cart_item in CartItem)
             {
                 POSItems item_data = await _context.Items.FindAsync(cart_item.Id);
                 decimal item_price = item_data.price * cart_item.Quantity;
                 price += item_price;
-                receipt.purchased_items.Add(this.create_purchase_item_entry(item_price, item_data, cart_item));
+                receipt.purchased_items.Add(POSController.create_purchase_item_entry(item_price, item_data, cart_item));
             }
             if (this._user.wallet < price)
             {
@@ -282,7 +280,7 @@ namespace TodoApi.Controllers
             receipt.total_price = price;
             this._user.wallet -= price;
             receipt.remaining_balance = this._user.wallet;
-            if(await this.UpdateEntry(this._user)){
+            if(await this.UpdateEntry(this._user).ConfigureAwait(false)){
                 this.cart.Database.ExecuteSqlRaw("TRUNCATE `cart_items`");
                 return Ok(receipt);
             }
@@ -290,7 +288,7 @@ namespace TodoApi.Controllers
                 return StatusCode(500);
             }
         }
-        private PurchasedItem create_purchase_item_entry(decimal price, POSItems item, TransactionRequest request)
+        private static PurchasedItem create_purchase_item_entry(decimal price, POSItems item, TransactionRequest request)
         {
             PurchasedItem item_entry = new PurchasedItem();
             item_entry.Id = item.Id;
@@ -310,7 +308,7 @@ namespace TodoApi.Controllers
 
         // Create a User
         // Currently setting it as a dummy info as there is no way of adding users yet.
-        private UserProfile CreateUser()
+        private static UserProfile CreateUser()
         {
             AccessRights rights = new AccessRights();
             rights.user_id = "DUMMY_0001";
@@ -343,7 +341,7 @@ namespace TodoApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                throw;
+                return false;
             }
             return true;
         }
@@ -362,12 +360,11 @@ namespace TodoApi.Controllers
                 return "Insufficient Stock";
             }
             entry_item.InStock -= item.Quantity;
-            this.UpdateIfExist(item);
-            await UpdateEntry(entry_item);
-            return true;
+            await this.UpdateIfExist(item).ConfigureAwait(false);
+            return await UpdateEntry(entry_item).ConfigureAwait(false);
         }
         [NonAction]
-        public async void UpdateIfExist(TransactionRequest item)
+        public async Task UpdateIfExist(TransactionRequest item)
         {
             if (this.TransactionRequestExist(item.Id))
             {
@@ -376,7 +373,7 @@ namespace TodoApi.Controllers
                 cart.Entry(request_item).State = EntityState.Modified;
                 try
                 {
-                    await cart.SaveChangesAsync();
+                    await cart.SaveChangesAsync().ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -386,7 +383,7 @@ namespace TodoApi.Controllers
             else
             {
                 this.cart.cart_items.Add(item);
-                await this.cart.SaveChangesAsync();
+                await this.cart.SaveChangesAsync().ConfigureAwait(false);
             }
         }
     }
